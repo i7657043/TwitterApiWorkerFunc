@@ -21,15 +21,24 @@ namespace TOFunction
                .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
                .AddEnvironmentVariables()
                .Build();
-            
-            string storageAccountConnectionString = config.GetValue<string>("Values:AzureWebJobsStorage");
+
+            string storageAccountConnectionString = string.Empty;
+
+            if (Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") == "Production")
+                storageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+
+            else if (Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") == "Development")
+                storageAccountConnectionString = config.GetValue<string>("Values:AzureWebJobsStorage");       
+
+            else
+                Environment.Exit(-1);
 
             builder.Services
-                .AddOptions<StorageCredentials>()
-                .Configure<IConfiguration>((settings, config) =>
-                {
-                    settings.AzureWebJobsStorage = storageAccountConnectionString;
-                });
+                   .AddOptions<StorageCredentials>()
+                   .Configure<IConfiguration>((settings, config) =>
+                   {
+                       settings.AzureWebJobsStorage = storageAccountConnectionString;
+                   });
         }
     }
 }
