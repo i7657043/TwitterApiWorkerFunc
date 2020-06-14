@@ -18,26 +18,39 @@ namespace TOFunction
             var config = new ConfigurationBuilder()
                .SetBasePath(Environment.CurrentDirectory)
                .AddJsonFile("appsettings.json", true)
-               .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
                .AddEnvironmentVariables()
+               .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
                .Build();
 
             string storageAccountConnectionString = string.Empty;
+            string dbConnectionString = string.Empty;
 
             if (Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") == "Production")
                 storageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
             else if (Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") == "Development")
                 storageAccountConnectionString = config.GetValue<string>("Values:AzureWebJobsStorage");       
+            
+            dbConnectionString = config.GetConnectionString("Rdb");
 
-            else
+            if (storageAccountConnectionString == string.Empty || dbConnectionString == string.Empty)
+            {
+                Console.WriteLine("\nNo Valid Connection to Storage or Database. Exiting");
                 Environment.Exit(-1);
+            }
 
             builder.Services
                    .AddOptions<StorageCredentials>()
                    .Configure<IConfiguration>((settings, config) =>
                    {
                        settings.AzureWebJobsStorage = storageAccountConnectionString;
+                   });
+
+            builder.Services
+                   .AddOptions<DatabaseCredentials>()
+                   .Configure<IConfiguration>((settings, config) =>
+                   {
+                       settings.DbConnectionString = dbConnectionString;
                    });
         }
     }
