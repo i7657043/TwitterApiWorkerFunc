@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace TOFunction
 {
-    public class TCreator
+    public class TweetCreator
     {
         //[FunctionName(nameof(TweetOut))]
         //public static void Run([TimerTrigger("* * * * * *")]TimerInfo myTimer, ILogger log)
@@ -26,29 +26,20 @@ namespace TOFunction
         private readonly IDatabaseService _databaseService;
         private readonly string _storageAccountConString;
 
-        public TCreator(IOptions<StorageCredentials> storageOptions, IDatabaseService databaseService)
+        public TweetCreator(IOptions<StorageCredentials> storageOptions, IDatabaseService databaseService)
         {
             _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;
             _databaseService = databaseService;
         }
 
-        [FunctionName(nameof(TCreator) + "http")]
+        [FunctionName(nameof(TweetCreator) + "http")]
         public async Task<string> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             StringBuilder msg = new StringBuilder($"C# HTTP trigger function executed on Env: {Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT")} at: {DateTime.Now}");
 
             try
             {
-                // Instantiate a QueueClient for each Queue
-                QueueClient unsentTweetsQueueClient = new QueueClient(_storageAccountConString, QueueNames.UnsentTweets);
-
                 QueueClient scheuduleTimeQueueClient;
-
-                if (!await unsentTweetsQueueClient.ExistsAsync())
-                {
-                    Console.WriteLine($"Queues required dont exist. Exiting");
-                    return "Fail - Queues required dont exist";
-                }
 
                 //Create Tweets to send from DB
                 Console.WriteLine("Creating Tweets from DB...");
@@ -80,29 +71,23 @@ namespace TOFunction
                             return "Fail - Tweet Schedule Time not recognised";
                     }
 
+                    if (!await scheuduleTimeQueueClient.ExistsAsync())
+                    {
+                        Console.WriteLine($"Queues required dont exist. Exiting");
+                        return "Fail - Queues required dont exist";
+                    }
+
                     foreach (string serialisedTweet in tweetsList)
                     {
                         Console.WriteLine($"Sending Tweet {JsonConvert.DeserializeObject(serialisedTweet)}...");
 
                         await scheuduleTimeQueueClient.SendMessageAsync(serialisedTweet);
 
-                        Console.WriteLine($"{tweetGroupsTime.ToString()} Tweet Sent");
+                        Console.WriteLine($"{tweetGroupsTime.ToString()} Tweet Sent to {scheuduleTimeQueueClient.Name} Queue");
                     }
                 }                
 
-                Console.WriteLine($"Success, Tweet sending Complete");
-
-                // Async receive the message
-                // QueueMessage[] retrievedMessage = await queueClient.ReceiveMessagesAsync();
-                // string decodedMsg = retrievedMessage[0].MessageText.DecodeBase64();
-
-                //Console.WriteLine($"Retrieved message with content '{decodedMsg}'");
-                //Console.WriteLine("Deserialising Message...");
-                //UnsentTweet test = JsonConvert.DeserializeObject<UnsentTweet>(decodedMsg);
-
-                // Async delete the message
-                //await queueClient.DeleteMessageAsync(retrievedMessage[0].MessageId, retrievedMessage[0].PopReceipt);
-                //Console.WriteLine($"Deleted message: '{retrievedMessage[0].MessageText}'");
+                Console.WriteLine($"Success, All Tweets sent to Waiting Queues");
             }
             catch (Exception ex)
             {

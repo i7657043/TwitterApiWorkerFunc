@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 namespace TOFunction
 {
 
-    public class TweetOut
+    public class TweetSender
     {
         //[FunctionName(nameof(TweetOut))]
         //public static void Run([TimerTrigger("* * * * * *")]TimerInfo myTimer, ILogger log)
@@ -23,12 +23,12 @@ namespace TOFunction
 
         private readonly string _storageAccountConString;
 
-        public TweetOut(IOptions<StorageCredentials> options)
+        public TweetSender(IOptions<StorageCredentials> options)
         {
             _storageAccountConString = options.Value.AzureWebJobsStorage;
         }
 
-        [FunctionName(nameof(TweetOut))]
+        [FunctionName(nameof(TweetSender))]
         public static void Run([QueueTrigger("unsent-tweets", Connection = "AzureWebJobsStorage")] string myQueueItem, ILogger log)
         {
             Console.WriteLine($"Retrieved message with content '{myQueueItem}'. Deserialising Message...");
