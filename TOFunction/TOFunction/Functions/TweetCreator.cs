@@ -17,14 +17,8 @@ namespace TOFunction
 {
     public class TweetCreator
     {
-        //[FunctionName(nameof(TweetOut))]
-        //public static void Run([TimerTrigger("* * * * * *")]TimerInfo myTimer, ILogger log)
-        //{
-        //    log.LogInformation($"\n\n\nC# Timer trigger function executed at: {DateTime.Now}\n\n\n");
-        //}
-
-        private readonly IDatabaseService _databaseService;
         private readonly string _storageAccountConString;
+        private readonly IDatabaseService _databaseService;
 
         public TweetCreator(IOptions<StorageCredentials> storageOptions, IDatabaseService databaseService)
         {
@@ -32,11 +26,21 @@ namespace TOFunction
             _databaseService = databaseService;
         }
 
-        [FunctionName(nameof(TweetCreator) + "http")]
-        public async Task<string> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
-        {
-            StringBuilder msg = new StringBuilder($"C# HTTP trigger function executed on Env: {Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT")} at: {DateTime.Now}");
+        //[FunctionName(nameof(TweetCreator))]
+        //public async Task Run([TimerTrigger("0 0 2 0 0 0")]TimerInfo myTimer, ILogger log)
+        //{
+        //    await Execute();
+        //}
 
+
+        [FunctionName(nameof(TweetCreator) + "http")]
+        public async Task<string> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
+        {
+            return await Execute();
+        }
+
+        private async Task<string> Execute()
+        {
             try
             {
                 QueueClient scheuduleTimeQueueClient;
@@ -85,7 +89,7 @@ namespace TOFunction
 
                         Console.WriteLine($"{tweetGroupsTime.ToString()} Tweet Sent to {scheuduleTimeQueueClient.Name} Queue");
                     }
-                }                
+                }
 
                 Console.WriteLine($"Success, All Tweets sent to Waiting Queues");
             }
@@ -96,9 +100,8 @@ namespace TOFunction
                 throw;
             }
 
-            log.LogInformation(msg.ToString());
-
             return "Success";
         }
+
     }
 }

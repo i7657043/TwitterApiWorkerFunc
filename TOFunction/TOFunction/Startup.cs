@@ -18,9 +18,8 @@ namespace TOFunction
         {
             var config = new ConfigurationBuilder()
                .SetBasePath(Environment.CurrentDirectory)
-               .AddJsonFile("appsettings.json", true)
+               .AddUserSecrets(Assembly.GetExecutingAssembly(), false, reloadOnChange: true)
                .AddEnvironmentVariables()
-               .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
                .Build();
 
             string storageAccountConnectionString = string.Empty;
@@ -37,7 +36,7 @@ namespace TOFunction
             if (storageAccountConnectionString == string.Empty || dbConnectionString == string.Empty)
             {
                 Console.WriteLine("\nNo Valid Connection to Storage or Database. Exiting");
-                Environment.Exit(-1);
+                return;
             }
 
             builder.Services
