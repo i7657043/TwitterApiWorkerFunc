@@ -24,6 +24,10 @@ namespace TOFunction
 
             string storageAccountConnectionString = string.Empty;
             string dbConnectionString = string.Empty;
+            string twitterApiKey = string.Empty;
+            string twitterApiSecretKey = string.Empty;
+            string twitterAccessToken = string.Empty;
+            string twitterAccessTokenSecret = string.Empty;
 
             if (Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") == "Production")
                 storageAccountConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
@@ -32,6 +36,11 @@ namespace TOFunction
                 storageAccountConnectionString = config.GetValue<string>("Values:AzureWebJobsStorage");       
             
             dbConnectionString = config.GetConnectionString("Rdb");
+
+            twitterApiKey = config.GetValue<string>("TwitterCredentials:ApiKey");
+            twitterApiSecretKey = config.GetValue<string>("TwitterCredentials:ApiSecretKey");
+            twitterAccessToken = config.GetValue<string>("TwitterCredentials:AccessToken");
+            twitterAccessTokenSecret = config.GetValue<string>("TwitterCredentials:AccessTokenSecret");
 
             if (storageAccountConnectionString == string.Empty || dbConnectionString == string.Empty)
             {
@@ -51,6 +60,16 @@ namespace TOFunction
                    .Configure<IConfiguration>((settings, config) =>
                    {
                        settings.DbConnectionString = dbConnectionString;
+                   });
+
+            builder.Services
+                   .AddOptions<TwitterCredentials>()
+                   .Configure<IConfiguration>((settings, config) =>
+                   {
+                       settings.ApiKey = twitterApiKey;
+                       settings.ApiSecretKey = twitterApiSecretKey;
+                       settings.AccessToken = twitterAccessToken;
+                       settings.AccessTokenSecret = twitterAccessTokenSecret;                       
                    });
 
             builder.Services

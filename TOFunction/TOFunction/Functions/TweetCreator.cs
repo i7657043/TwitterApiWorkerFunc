@@ -12,17 +12,22 @@ using Newtonsoft.Json;
 using TOFunction.Services.DatabaseService;
 using System.Collections.Generic;
 using System.Linq;
+using Tweetinvi;
 
 namespace TOFunction
 {
     public class TweetCreator
     {
         private readonly string _storageAccountConString;
+        private readonly TwitterCredentials _twitterCredentials;
         private readonly IDatabaseService _databaseService;
-
-        public TweetCreator(IOptions<StorageCredentials> storageOptions, IDatabaseService databaseService)
+        public TweetCreator(
+            IOptions<StorageCredentials> storageOptions,
+            IOptions<TwitterCredentials> twitterCredentials,
+            IDatabaseService databaseService)
         {
             _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;
+            _twitterCredentials = twitterCredentials.Value;
             _databaseService = databaseService;
         }
 
@@ -36,14 +41,27 @@ namespace TOFunction
         [FunctionName(nameof(TweetCreator) + "http")]
         public async Task<string> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
         {
-            return await Execute();
+            Auth.SetUserCredentials(_twitterCredentials.ApiKey, _twitterCredentials.ApiSecretKey, _twitterCredentials.AccessToken, _twitterCredentials.AccessTokenSecret);
+
+            Tweet.PublishTweet("Hello World!");
+
+            return "Done";
+            //return await Execute();
         }
 
         private async Task<string> Execute()
         {
             try
             {
-                QueueClient scheuduleTimeQueueClient;
+                //First clear all Queues from the previos days
+                QueueClient scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.MorningWaitingTweets);
+                await scheuduleTimeQueueClient.ClearMessagesAsync();
+                scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.MiddayWaitingTweets);
+                await scheuduleTimeQueueClient.ClearMessagesAsync();
+                scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.AfternoonWaitingTweets);
+                await scheuduleTimeQueueClient.ClearMessagesAsync();
+                scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.UnsentTweets);
+                await scheuduleTimeQueueClient.ClearMessagesAsync();
 
                 //Create Tweets to send from DB
                 Console.WriteLine("Creating Tweets from DB...");
