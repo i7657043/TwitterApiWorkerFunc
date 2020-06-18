@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using TOFunction;
+using TOFunction.Services.DatabaseService;
 
 // register assembly
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -52,6 +53,11 @@ namespace TOFunction
                    {
                        settings.DbConnectionString = dbConnectionString;
                    });
+
+            builder.Services
+                .AddSingleton<IDatabaseService, DatabaseService>()
+                .AddSingleton<IDatabaseProvider, DatabaseProvider>()
+                .AddSingleton<IDatabaseRepository, DatabaseRepository>();
         }
     }
 }
