@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Azure;
@@ -11,10 +10,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
+
+using Azure.Storage.Queues; // Namespace for Queue storage types
+using Azure.Storage.Queues.Models; // Namespace for PeekedMessage
 
 namespace TOFunction
-{   
+{
     public class TweetOut
     {
         //[FunctionName(nameof(TweetOut))]
