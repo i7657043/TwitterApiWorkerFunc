@@ -2,26 +2,24 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text;
 using Azure.Storage.Queues;
 using System;
-using Azure.Storage.Queues.Models;
 using Newtonsoft.Json;
-using TOFunction.Services.DatabaseService;
 using System.Collections.Generic;
-using System.Linq;
-using Tweetinvi;
+using TOFunction.Models;
+using TOFunction.Extensions;
+using TOFunction.Data;
+using TOFunction.Services;
 
-namespace TOFunction
+namespace TOFunction.Functions
 {
     public class TweetCreator
     {
         private readonly string _storageAccountConString;
         private readonly IDatabaseService _databaseService;
         public TweetCreator(
-            IOptions<StorageCredentials> storageOptions,
+            IOptions<AzureStorageCredentials> storageOptions,
             IDatabaseService databaseService)
         {
             _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;            
@@ -53,14 +51,14 @@ namespace TOFunction
                 //Create Tweets to send from DB
                 Console.WriteLine("Creating Tweets from DB...");
 
-                List<Tweet> tweetsToSend = await _databaseService.CreateTweetsAsync();
+                List<CustomTweet> tweetsToSend = await _databaseService.CreateTweetsAsync();
 
                 //3 intervals for now
                 List<List<string>> allTweets = tweetsToSend.GetTweetsForSchedules();
 
                 foreach (List<string> tweetsList in allTweets)
                 {
-                    ScheduleTime tweetGroupsTime = JsonConvert.DeserializeObject<Tweet>(tweetsList[0]).ScheduleTime;
+                    ScheduleTime tweetGroupsTime = JsonConvert.DeserializeObject<CustomTweet>(tweetsList[0]).ScheduleTime;
 
                     switch (tweetGroupsTime)
                     {

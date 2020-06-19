@@ -1,19 +1,11 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 using System;
 
-namespace TOFunction.Services.DatabaseService
+namespace TOFunction.Models
 {
-    public class TweetDto
-    {
-        public string Category { get; set; }
-        public string Location { get; set; }
-        public DateTime Deadline { get; set; }
-        public ScheduleTime ScheduleTime { get; set; }
-    }
-
-    public class TweetTableEntity : TableEntity
+    public class CustomTweetTableEntity : TableEntity
     {        
-        public TweetTableEntity(string category, string location, DateTime deadline, ScheduleTime scheduleTime)
+        public CustomTweetTableEntity(string category, string location, DateTime deadline, ScheduleTime scheduleTime)
         {
             Category = category;
             Location = location;

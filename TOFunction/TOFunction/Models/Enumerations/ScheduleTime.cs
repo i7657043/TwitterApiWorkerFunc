@@ -1,4 +1,4 @@
-﻿namespace TOFunction
+﻿namespace TOFunction.Models
 {
     public enum ScheduleTime
     {

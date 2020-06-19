@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace TOFunction
+namespace TOFunction.Extensions
 {
     public static class StringExtensions
     {

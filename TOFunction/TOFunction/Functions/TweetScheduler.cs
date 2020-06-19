@@ -6,9 +6,9 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using TOFunction.Data;
+using TOFunction.Extensions;
 
 namespace TOFunction.Functions
 {
@@ -16,7 +16,7 @@ namespace TOFunction.Functions
     {
         private readonly string _storageAccountConString;
 
-        public TweetScheduler(IOptions<StorageCredentials> storageOptions)
+        public TweetScheduler(IOptions<AzureStorageCredentials> storageOptions)
         {
             _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;
         }

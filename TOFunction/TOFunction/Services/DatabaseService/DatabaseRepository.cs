@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TOFunction.Data;
+using TOFunction.Models;
 
-namespace TOFunction.Services.DatabaseService
+namespace TOFunction.Services
 {
     public class DatabaseRepository : IDatabaseRepository
     {
@@ -14,46 +16,59 @@ namespace TOFunction.Services.DatabaseService
             _dbConString = dbOptions.Value.DbConnectionString;
         }
 
-        public async Task<List<TweetDto>> CreateTweetsAsnyc()
+        public async Task<List<CustomTweetDto>> CreateTweetsAsnyc()
         {
-            return new List<TweetDto>
+            return GetFakeTweets();
+
+            //using (SqlConnection connection = new SqlConnection(_dbConString))
+            //{
+            // TODO: Need to map to schema, obviously
+            //IEnumerable<UnsentTweetDto> unsentTweet = await connection.QueryAsync<UnsentTweetDto>("SELECT TOP 1 * FROM Tables WHERE Id = 1");
+
+            //return unsentTweet.ToList();
+            //}
+        }
+
+        private static List<CustomTweetDto> GetFakeTweets()
+        {
+            return new List<CustomTweetDto>
             {
-                new TweetDto
+                new CustomTweetDto
                 {
                     Category = "Cat_MA",
                     Deadline = DateTime.Now,
                     Location = "Loc_A",
                     ScheduleTime = ScheduleTime.Morning
                 },
-                new TweetDto
+                new CustomTweetDto
                 {
                     Category = "Cat_B",
                     Deadline = DateTime.Now,
                     Location = "Loc_B",
                     ScheduleTime = ScheduleTime.Morning
                 },
-                new TweetDto
+                new CustomTweetDto
                 {
                     Category = "Cat_C",
                     Deadline = DateTime.Now,
                     Location = "Loc_C",
                     ScheduleTime = ScheduleTime.Midday
                 },
-                new TweetDto
+                new CustomTweetDto
                 {
                     Category = "Cat_A",
                     Deadline = DateTime.Now,
                     Location = "Loc_A",
                     ScheduleTime = ScheduleTime.Midday
                 },
-                new TweetDto
+                new CustomTweetDto
                 {
                     Category = "Cat_B",
                     Deadline = DateTime.Now,
                     Location = "Loc_A",
                     ScheduleTime = ScheduleTime.Afternoon
                 },
-                new TweetDto
+                new CustomTweetDto
                 {
                     Category = "Cat_C",
                     Deadline = DateTime.Now,
@@ -61,14 +76,6 @@ namespace TOFunction.Services.DatabaseService
                     ScheduleTime = ScheduleTime.Afternoon
                 }
             };
-            
-            //using (SqlConnection connection = new SqlConnection(_dbConString))
-            //{
-                // TODO: Need to map to schema, obviously
-                //IEnumerable<UnsentTweetDto> unsentTweet = await connection.QueryAsync<UnsentTweetDto>("SELECT TOP 1 * FROM Tables WHERE Id = 1");
-
-                //return unsentTweet.ToList();
-            //}
         }
     }
 }

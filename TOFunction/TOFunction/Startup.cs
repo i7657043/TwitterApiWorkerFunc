@@ -4,7 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
 using TOFunction;
-using TOFunction.Services.DatabaseService;
+using TOFunction.Data;
+using TOFunction.Services;
 
 // register assembly
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -49,7 +50,7 @@ namespace TOFunction
             }
 
             builder.Services
-                   .AddOptions<StorageCredentials>()
+                   .AddOptions<AzureStorageCredentials>()
                    .Configure<IConfiguration>((settings, config) =>
                    {
                        settings.AzureWebJobsStorage = storageAccountConnectionString;

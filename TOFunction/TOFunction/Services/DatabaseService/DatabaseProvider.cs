@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using TOFunction.Extensions;
+using TOFunction.Models;
 
-namespace TOFunction.Services.DatabaseService
+namespace TOFunction.Services
 {
     public class DatabaseProvider : IDatabaseProvider
     {
@@ -12,9 +14,9 @@ namespace TOFunction.Services.DatabaseService
             _databaseRepo = databaseRepo;
         }
 
-        public async Task<List<Tweet>> CreateTweetsAsync()
+        public async Task<List<CustomTweet>> CreateTweetsAsync()
         {
-            List<TweetDto> unsentTweetDtos = await _databaseRepo.CreateTweetsAsnyc();
+            List<CustomTweetDto> unsentTweetDtos = await _databaseRepo.CreateTweetsAsnyc();
 
             return unsentTweetDtos.MapFromDtos();
         }

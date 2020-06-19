@@ -1,19 +1,16 @@
 using System;
 using System.Threading.Tasks;
-using Azure.Storage.Queues;
-using Azure.Storage.Queues.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
-using TOFunction.Services.DatabaseService;
+using TOFunction.Data;
+using TOFunction.Extensions;
+using TOFunction.Models;
 using Tweetinvi;
 
-namespace TOFunction
+namespace TOFunction.Functions
 {
 
     public class TweetSender
@@ -21,7 +18,7 @@ namespace TOFunction
         private readonly TwitterCredentials _twitterCredentials;
         private readonly string _storageAccountConString;
 
-        public TweetSender(IOptions<TwitterCredentials> twitterCredentials, IOptions<StorageCredentials> storageOptions)
+        public TweetSender(IOptions<TwitterCredentials> twitterCredentials, IOptions<AzureStorageCredentials> storageOptions)
         {
             _twitterCredentials = twitterCredentials.Value;
             _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;
@@ -39,7 +36,7 @@ namespace TOFunction
             {
                 Console.WriteLine($"Retrieved message with content '{queueMessage}'. Deserialising Message...");
 
-                Tweet tweet = JsonConvert.DeserializeObject<Tweet>(queueMessage);
+                CustomTweet tweet = JsonConvert.DeserializeObject<CustomTweet>(queueMessage);
 
                 Auth.SetUserCredentials(_twitterCredentials.ApiKey, _twitterCredentials.ApiSecretKey, _twitterCredentials.AccessToken, _twitterCredentials.AccessTokenSecret);
 
@@ -65,13 +62,13 @@ namespace TOFunction
             }
         }
 
-        private static async Task WriteTweetDetailsToTableStorage(Tweet tweet, CloudStorageAccount storageAccount)
+        private static async Task WriteTweetDetailsToTableStorage(CustomTweet tweet, CloudStorageAccount storageAccount)
         {
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
             CloudTable table = tableClient.GetTableReference(AzureResourceNames.TweetLogsTable);
 
-            TweetTableEntity tte = tweet.MapToTableEntity();
+            CustomTweetTableEntity tte = tweet.MapToTableEntity();
 
             TableOperation insert = TableOperation.Insert(tte);
 

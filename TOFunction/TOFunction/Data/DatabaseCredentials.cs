@@ -1,9 +1,4 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using TOFunction;
-
-// register assembly
-[assembly: FunctionsStartup(typeof(Startup))]
-namespace TOFunction
+﻿namespace TOFunction.Data
 {
     public class DatabaseCredentials
     {

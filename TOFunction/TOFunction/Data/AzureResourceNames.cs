@@ -1,4 +1,4 @@
-﻿namespace TOFunction
+﻿namespace TOFunction.Data
 {
     public static class AzureResourceNames
     {

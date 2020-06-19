@@ -1,13 +1,9 @@
-﻿using Dapper;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using TOFunction.Models;
 
-namespace TOFunction.Services.DatabaseService
-{
+namespace TOFunction.Services
+{ 
     public class DatabaseService : IDatabaseService
     {
         private readonly IDatabaseProvider _databaseProvider;
@@ -17,7 +13,7 @@ namespace TOFunction.Services.DatabaseService
             _databaseProvider = databaseProvider;
         }
 
-        public Task<List<Tweet>> CreateTweetsAsync()
+        public Task<List<CustomTweet>> CreateTweetsAsync()
         {
             return _databaseProvider.CreateTweetsAsync();
         }

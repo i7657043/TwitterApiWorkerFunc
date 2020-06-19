@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace TOFunction
+namespace TOFunction.Models
 {
-    public class Tweet
+    public class CustomTweetDto
     {
         public string Category { get; set; }
         public string Location { get; set; }
