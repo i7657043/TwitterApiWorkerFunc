@@ -50,9 +50,7 @@ namespace TOFunction.Functions
 
                 await WriteTweetDetailsToTableStorage(tweet, storageAccount);
 
-                Console.WriteLine($"Tweet details successfully wrote to Table Storage");
-
-                Console.WriteLine($"Finsihed");
+                Console.WriteLine($"Tweet details successfully wrote to Table Storage.\nFinished successfully");
             }
             catch (Exception ex)
             {

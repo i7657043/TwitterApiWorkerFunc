@@ -41,11 +41,11 @@ namespace TOFunction.Functions
                 switch (DateTime.Now.TimeOfDay.Hours)
                 {
                     case 10:
-                        return await ScheduleNextTweet(new QueueClient(_storageAccountConString, AzureResourceNames.MorningWaitingTweets));
+                        return await ScheduleNextTweetOnQueue(new QueueClient(_storageAccountConString, AzureResourceNames.MorningWaitingTweets));
                     case 13:
-                        return await ScheduleNextTweet(new QueueClient(_storageAccountConString, AzureResourceNames.MiddayWaitingTweets));
+                        return await ScheduleNextTweetOnQueue(new QueueClient(_storageAccountConString, AzureResourceNames.MiddayWaitingTweets));
                     case 22:
-                        return await ScheduleNextTweet(new QueueClient(_storageAccountConString, AzureResourceNames.AfternoonWaitingTweets));
+                        return await ScheduleNextTweetOnQueue(new QueueClient(_storageAccountConString, AzureResourceNames.AfternoonWaitingTweets));
 
                     default:
                         return $"Fail - Incorrect timer execution {DateTime.Now}";
@@ -60,7 +60,7 @@ namespace TOFunction.Functions
             
         }
 
-        private async Task<string> ScheduleNextTweet(QueueClient queueClient)
+        private async Task<string> ScheduleNextTweetOnQueue(QueueClient queueClient)
         {
             QueueMessage[] retrievedMessage = await queueClient.ReceiveMessagesAsync(1);
 
@@ -69,8 +69,6 @@ namespace TOFunction.Functions
             await unsentTweetsQueueClient.SendMessageAsync(retrievedMessage[0].MessageText.EncodeBase64());
 
             return "Success";
-        }
-
-        
+        }        
     }
 }
