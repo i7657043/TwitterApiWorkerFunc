@@ -5,6 +5,6 @@ namespace TOFunction.Services.DatabaseService
 {
     public interface IDatabaseService
     {
-        public Task<List<UnsentTweet>> CreateTweetsAsync();
+        public Task<List<Tweet>> CreateTweetsAsync();
     }
 }

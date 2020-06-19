@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,38 +14,50 @@ namespace TOFunction.Services.DatabaseService
             _dbConString = dbOptions.Value.DbConnectionString;
         }
 
-        public async Task<List<UnsentTweetDto>> CreateTweetsAsnyc()
+        public async Task<List<TweetDto>> CreateTweetsAsnyc()
         {
-            return new List<UnsentTweetDto>
+            return new List<TweetDto>
             {
-                new UnsentTweetDto
+                new TweetDto
                 {
-                    Field = "Morn_A",
+                    Category = "Cat_MA",
+                    Deadline = DateTime.Now,
+                    Location = "Loc_A",
                     ScheduleTime = ScheduleTime.Morning
                 },
-                new UnsentTweetDto
+                new TweetDto
                 {
-                    Field = "Morn_B",
+                    Category = "Cat_B",
+                    Deadline = DateTime.Now,
+                    Location = "Loc_B",
                     ScheduleTime = ScheduleTime.Morning
                 },
-                new UnsentTweetDto
+                new TweetDto
                 {
-                    Field = "Mid_A",
+                    Category = "Cat_C",
+                    Deadline = DateTime.Now,
+                    Location = "Loc_C",
                     ScheduleTime = ScheduleTime.Midday
                 },
-                new UnsentTweetDto
+                new TweetDto
                 {
-                    Field = "Mid_B",
+                    Category = "Cat_A",
+                    Deadline = DateTime.Now,
+                    Location = "Loc_A",
                     ScheduleTime = ScheduleTime.Midday
                 },
-                new UnsentTweetDto
+                new TweetDto
                 {
-                    Field = "Aft_A",
+                    Category = "Cat_B",
+                    Deadline = DateTime.Now,
+                    Location = "Loc_A",
                     ScheduleTime = ScheduleTime.Afternoon
                 },
-                new UnsentTweetDto
+                new TweetDto
                 {
-                    Field = "Aft_B",
+                    Category = "Cat_C",
+                    Deadline = DateTime.Now,
+                    Location = "Loc_C",
                     ScheduleTime = ScheduleTime.Afternoon
                 }
             };

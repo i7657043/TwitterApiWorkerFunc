@@ -36,25 +36,35 @@ namespace TOFunction.Functions
 
         private async Task<string> Execute()
         {
-            switch (DateTime.Now.TimeOfDay.Hours)
+            try
             {
-                case 10:
-                    return await ScheduleNextTweet(new QueueClient(_storageAccountConString, QueueNames.MorningWaitingTweets));
-                case 13:
-                    return await ScheduleNextTweet(new QueueClient(_storageAccountConString, QueueNames.MiddayWaitingTweets));
-                case 22:
-                    return await ScheduleNextTweet(new QueueClient(_storageAccountConString, QueueNames.AfternoonWaitingTweets));
+                switch (DateTime.Now.TimeOfDay.Hours)
+                {
+                    case 10:
+                        return await ScheduleNextTweet(new QueueClient(_storageAccountConString, AzureResourceNames.MorningWaitingTweets));
+                    case 13:
+                        return await ScheduleNextTweet(new QueueClient(_storageAccountConString, AzureResourceNames.MiddayWaitingTweets));
+                    case 22:
+                        return await ScheduleNextTweet(new QueueClient(_storageAccountConString, AzureResourceNames.AfternoonWaitingTweets));
 
-                default:
-                    return $"Fail - Incorrect timer execution {DateTime.Now}";
+                    default:
+                        return $"Fail - Incorrect timer execution {DateTime.Now}";
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+
+                throw;
+            }
+            
         }
 
         private async Task<string> ScheduleNextTweet(QueueClient queueClient)
         {
             QueueMessage[] retrievedMessage = await queueClient.ReceiveMessagesAsync(1);
 
-            QueueClient unsentTweetsQueueClient = new QueueClient(_storageAccountConString, QueueNames.UnsentTweets);
+            QueueClient unsentTweetsQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.UnsentTweets);
 
             await unsentTweetsQueueClient.SendMessageAsync(retrievedMessage[0].MessageText.EncodeBase64());
 

@@ -17,7 +17,7 @@ namespace TOFunction.Services.DatabaseService
             _databaseProvider = databaseProvider;
         }
 
-        public Task<List<UnsentTweet>> CreateTweetsAsync()
+        public Task<List<Tweet>> CreateTweetsAsync()
         {
             return _databaseProvider.CreateTweetsAsync();
         }

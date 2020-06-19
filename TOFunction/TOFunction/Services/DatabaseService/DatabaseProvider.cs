@@ -12,9 +12,9 @@ namespace TOFunction.Services.DatabaseService
             _databaseRepo = databaseRepo;
         }
 
-        public async Task<List<UnsentTweet>> CreateTweetsAsync()
+        public async Task<List<Tweet>> CreateTweetsAsync()
         {
-            List<UnsentTweetDto> unsentTweetDtos = await _databaseRepo.CreateTweetsAsnyc();
+            List<TweetDto> unsentTweetDtos = await _databaseRepo.CreateTweetsAsnyc();
 
             return unsentTweetDtos.MapFromDtos();
         }

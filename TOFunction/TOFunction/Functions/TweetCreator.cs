@@ -19,15 +19,12 @@ namespace TOFunction
     public class TweetCreator
     {
         private readonly string _storageAccountConString;
-        private readonly TwitterCredentials _twitterCredentials;
         private readonly IDatabaseService _databaseService;
         public TweetCreator(
             IOptions<StorageCredentials> storageOptions,
-            IOptions<TwitterCredentials> twitterCredentials,
             IDatabaseService databaseService)
         {
-            _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;
-            _twitterCredentials = twitterCredentials.Value;
+            _storageAccountConString = storageOptions.Value.AzureWebJobsStorage;            
             _databaseService = databaseService;
         }
 
@@ -40,13 +37,8 @@ namespace TOFunction
 
         [FunctionName(nameof(TweetCreator) + "http")]
         public async Task<string> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
-        {
-            Auth.SetUserCredentials(_twitterCredentials.ApiKey, _twitterCredentials.ApiSecretKey, _twitterCredentials.AccessToken, _twitterCredentials.AccessTokenSecret);
-
-            Tweet.PublishTweet("Hello World!");
-
-            return "Done";
-            //return await Execute();
+        {            
+            return await Execute();
         }
 
         private async Task<string> Execute()
@@ -54,39 +46,32 @@ namespace TOFunction
             try
             {
                 //First clear all Queues from the previos days
-                QueueClient scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.MorningWaitingTweets);
-                await scheuduleTimeQueueClient.ClearMessagesAsync();
-                scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.MiddayWaitingTweets);
-                await scheuduleTimeQueueClient.ClearMessagesAsync();
-                scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.AfternoonWaitingTweets);
-                await scheuduleTimeQueueClient.ClearMessagesAsync();
-                scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.UnsentTweets);
-                await scheuduleTimeQueueClient.ClearMessagesAsync();
+                await ClearQueues();
+
+                QueueClient scheuduleTimeQueueClient;
 
                 //Create Tweets to send from DB
                 Console.WriteLine("Creating Tweets from DB...");
-                List<UnsentTweet> tweetsToSend = await _databaseService.CreateTweetsAsync();
+
+                List<Tweet> tweetsToSend = await _databaseService.CreateTweetsAsync();
 
                 //3 intervals for now
-                List<List<string>> allTweets = new List<List<string>>();
-                allTweets.Add(tweetsToSend.GetTweetsForTimeOfDay(ScheduleTime.Morning));
-                allTweets.Add(tweetsToSend.GetTweetsForTimeOfDay(ScheduleTime.Midday));
-                allTweets.Add(tweetsToSend.GetTweetsForTimeOfDay(ScheduleTime.Afternoon));
+                List<List<string>> allTweets = tweetsToSend.GetTweetsForSchedules();
 
                 foreach (List<string> tweetsList in allTweets)
                 {
-                    ScheduleTime tweetGroupsTime = JsonConvert.DeserializeObject<UnsentTweet>(tweetsList[0]).ScheduleTime;
+                    ScheduleTime tweetGroupsTime = JsonConvert.DeserializeObject<Tweet>(tweetsList[0]).ScheduleTime;
 
                     switch (tweetGroupsTime)
                     {
                         case ScheduleTime.Morning:
-                            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.MorningWaitingTweets);
+                            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.MorningWaitingTweets);
                             break;
                         case ScheduleTime.Midday:
-                            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.MiddayWaitingTweets);
+                            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.MiddayWaitingTweets);
                             break;
                         case ScheduleTime.Afternoon:
-                            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, QueueNames.AfternoonWaitingTweets);
+                            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.AfternoonWaitingTweets);
                             break;
 
                         default:
@@ -119,7 +104,18 @@ namespace TOFunction
             }
 
             return "Success";
-        }
+        }                
 
+        private async Task ClearQueues()
+        {
+            QueueClient scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.MorningWaitingTweets);
+            await scheuduleTimeQueueClient.ClearMessagesAsync();
+            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.MiddayWaitingTweets);
+            await scheuduleTimeQueueClient.ClearMessagesAsync();
+            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.AfternoonWaitingTweets);
+            await scheuduleTimeQueueClient.ClearMessagesAsync();
+            scheuduleTimeQueueClient = new QueueClient(_storageAccountConString, AzureResourceNames.UnsentTweets);
+            await scheuduleTimeQueueClient.ClearMessagesAsync();
+        }
     }
 }

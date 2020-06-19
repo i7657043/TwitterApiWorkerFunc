@@ -6,15 +6,17 @@ namespace TOFunction.Services.DatabaseService
 {
     public static class UnsentTweetExtensions
     {
-        public static List<UnsentTweet> MapFromDtos(this List<UnsentTweetDto> unsentTweetDtos)
+        public static List<Tweet> MapFromDtos(this List<TweetDto> unsentTweetDtos)
         {
-            List<UnsentTweet> unsentTweets = new List<UnsentTweet>();
+            List<Tweet> unsentTweets = new List<Tweet>();
 
-            foreach (UnsentTweetDto tweetDto in unsentTweetDtos)
+            foreach (TweetDto tweetDto in unsentTweetDtos)
             {
-                unsentTweets.Add(new UnsentTweet
+                unsentTweets.Add(new Tweet
                 {
-                    Field = tweetDto.Field,
+                    Category = tweetDto.Category,
+                    Deadline = tweetDto.Deadline,
+                    Location = tweetDto.Location,
                     ScheduleTime = tweetDto.ScheduleTime
                 });
             }
@@ -22,11 +24,25 @@ namespace TOFunction.Services.DatabaseService
             return unsentTweets;
         }
 
-        public static List<string> GetTweetsForTimeOfDay(this List<UnsentTweet> tweetsToSend, ScheduleTime timeFilter)
+        public static TweetTableEntity MapToTableEntity(this Tweet tweet)
+            =>  new TweetTableEntity(tweet.Category, tweet.Location, tweet.Deadline,  tweet.ScheduleTime);        
+
+        public static List<string> GetTweetsForTimeOfDay(this List<Tweet> tweetsToSend, ScheduleTime timeFilter) 
+            => tweetsToSend.Where(x => x.ScheduleTime == timeFilter)
+            .Select(tweet => JsonConvert.SerializeObject(tweet))
+            .ToList();        
+
+        public static string GeneratePublishableTweet(this Tweet unsentTweet) 
+            => $"#TweetAlert - New Alert - \"<Cat/Type>\" - required - <Location> - Deadline <Date> - Don't miss out - You can Register Free with us for Alerts tailored to you! <WebsiteUrl>";
+        
+
+        public static List<List<string>> GetTweetsForSchedules(this List<Tweet> tweetsToSend)
         {
-            return tweetsToSend.Where(x => x.ScheduleTime == timeFilter)
-                .Select(tweet => JsonConvert.SerializeObject(tweet))
-                .ToList();
+            List<List<string>> allTweets = new List<List<string>>();
+            allTweets.Add(tweetsToSend.GetTweetsForTimeOfDay(ScheduleTime.Morning));
+            allTweets.Add(tweetsToSend.GetTweetsForTimeOfDay(ScheduleTime.Midday));
+            allTweets.Add(tweetsToSend.GetTweetsForTimeOfDay(ScheduleTime.Afternoon));
+            return allTweets;
         }
     }
 }

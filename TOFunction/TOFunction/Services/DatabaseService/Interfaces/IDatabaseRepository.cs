@@ -5,6 +5,6 @@ namespace TOFunction.Services.DatabaseService
 {
     public interface IDatabaseRepository
     {
-        public Task<List<UnsentTweetDto>> CreateTweetsAsnyc();
+        public Task<List<TweetDto>> CreateTweetsAsnyc();
     }
 }
